@@ -1,0 +1,67 @@
+{
+  "domain": "state-management",
+  "description": "Design-level state management patterns and anti-patterns",
+  "level": "design",
+  "entries": [
+    {
+      "id": "seed:incomplete-state-machine",
+      "slug": "incomplete-state-machine",
+      "title": "Incomplete State Machine",
+      "impact": "HIGH",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["state-machine", "transitions", "lifecycle", "state"],
+      "category": "State Management",
+      "summary": "Design describes some states and transitions but not all",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "State diagrams with ellipsis or incomplete transitions",
+          "Only happy-path transitions described",
+          "No terminal state definitions or failure path transitions"
+        ],
+        "description": "The design describes some states and transitions but not all. Missing transitions mean undefined behavior — the implementation will fill gaps with whatever the developer assumes."
+      },
+      "code_context": null,
+      "source": "seed",
+      "curation": "critical",
+      "relevance_score": 1.0,
+      "confidence": 1.0,
+      "ingested_at": "2026-03-27T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": null,
+      "confirmed_by": []
+    },
+    {
+      "id": "seed:no-recovery-from-stuck-states",
+      "slug": "no-recovery-from-stuck-states",
+      "title": "No Recovery from Stuck States",
+      "impact": "HIGH",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["recovery", "stuck-state", "pause", "emergency", "state"],
+      "category": "State Management",
+      "summary": "No specification for recovery from unexpected states",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Pause mechanism without unpause conditions",
+          "Migration steps without rollback plan",
+          "Emergency modes with no exit criteria"
+        ],
+        "description": "The design doesn't specify how to recover when the system enters an unexpected state. Paused contracts with no unpause path, failed migrations with no rollback."
+      },
+      "code_context": null,
+      "source": "seed",
+      "curation": "critical",
+      "relevance_score": 1.0,
+      "confidence": 1.0,
+      "ingested_at": "2026-03-27T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": null,
+      "confirmed_by": []
+    }
+  ]
+}

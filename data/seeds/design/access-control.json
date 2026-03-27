@@ -1,0 +1,67 @@
+{
+  "domain": "access-control",
+  "description": "Design-level access control patterns and anti-patterns",
+  "level": "design",
+  "entries": [
+    {
+      "id": "seed:unbounded-admin-privilege",
+      "slug": "unbounded-admin-privilege",
+      "title": "Unbounded Admin Privilege",
+      "impact": "HIGH",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["access-control", "admin", "privilege", "timelock"],
+      "category": "Access Control",
+      "summary": "Admin roles with broad unscoped permissions without timelocks or multi-sig",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Single admin role with pause + upgrade + parameter changes",
+          "No timelock on high-impact operations",
+          "No multi-sig requirement for governance actions"
+        ],
+        "description": "The design grants admin roles broad, unscoped permissions without timelocks, multi-sig, or capability separation. A compromised admin key means total protocol compromise."
+      },
+      "code_context": null,
+      "source": "seed",
+      "curation": "critical",
+      "relevance_score": 1.0,
+      "confidence": 1.0,
+      "ingested_at": "2026-03-27T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": null,
+      "confirmed_by": []
+    },
+    {
+      "id": "seed:missing-role-separation",
+      "slug": "missing-role-separation",
+      "title": "Missing Role Separation",
+      "impact": "HIGH",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["access-control", "role-separation", "governance"],
+      "category": "Access Control",
+      "summary": "Critical operations require single role when they should require independent approval",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Same role can set parameters and upgrade contracts",
+          "No distinction between operator and governor roles",
+          "Operational and governance privileges combined in single role"
+        ],
+        "description": "Critical operations require a single role when they should require independent approval from multiple roles. No separation between operational and governance privileges."
+      },
+      "code_context": null,
+      "source": "seed",
+      "curation": "critical",
+      "relevance_score": 1.0,
+      "confidence": 1.0,
+      "ingested_at": "2026-03-27T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": null,
+      "confirmed_by": []
+    }
+  ]
+}

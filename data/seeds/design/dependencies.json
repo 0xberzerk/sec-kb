@@ -1,0 +1,67 @@
+{
+  "domain": "dependencies",
+  "description": "Design-level dependency patterns and anti-patterns",
+  "level": "design",
+  "entries": [
+    {
+      "id": "seed:single-oracle-without-fallback",
+      "slug": "single-oracle-without-fallback",
+      "title": "Single Oracle Without Fallback",
+      "impact": "HIGH",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["oracle", "price-feed", "fallback", "dependencies"],
+      "category": "Dependencies",
+      "summary": "Single price feed or data source with no fallback mechanism",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "One oracle mentioned with no failure path",
+          "No staleness threshold defined",
+          "No circuit breaker on bad data"
+        ],
+        "description": "The design depends on a single price feed or data source with no fallback mechanism. If the oracle is stale, manipulated, or offline, the protocol operates on bad data."
+      },
+      "code_context": null,
+      "source": "seed",
+      "curation": "critical",
+      "relevance_score": 1.0,
+      "confidence": 1.0,
+      "ingested_at": "2026-03-27T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": null,
+      "confirmed_by": []
+    },
+    {
+      "id": "seed:implicit-trust-external-protocols",
+      "slug": "implicit-trust-external-protocols",
+      "title": "Implicit Trust in External Protocols",
+      "impact": "HIGH",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["integration", "trust-boundary", "external-protocol", "dependencies"],
+      "category": "Dependencies",
+      "summary": "Integration with external protocol without documenting trust assumptions",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Integration listed without trust assumptions",
+          "No failure mode specification for external dependency",
+          "No mention of external protocol pause/upgrade/exploit scenarios"
+        ],
+        "description": "The design integrates with an external protocol but doesn't document what it trusts that protocol to do correctly. Assumes the integration just works without specifying failure modes."
+      },
+      "code_context": null,
+      "source": "seed",
+      "curation": "critical",
+      "relevance_score": 1.0,
+      "confidence": 1.0,
+      "ingested_at": "2026-03-27T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": null,
+      "confirmed_by": []
+    }
+  ]
+}

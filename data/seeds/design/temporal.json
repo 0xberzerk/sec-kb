@@ -1,0 +1,67 @@
+{
+  "domain": "temporal",
+  "description": "Design-level temporal patterns and anti-patterns",
+  "level": "design",
+  "entries": [
+    {
+      "id": "seed:missing-rate-limiting",
+      "slug": "missing-rate-limiting",
+      "title": "Missing Rate Limiting",
+      "impact": "HIGH",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["rate-limit", "cooldown", "DoS", "temporal"],
+      "category": "Temporal",
+      "summary": "Sensitive operations with no rate limits",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "No per-block or per-epoch limits on value-moving operations",
+          "No cooldown periods between critical actions",
+          "Unbounded operation frequency for minting/withdrawing/parameter changes"
+        ],
+        "description": "Sensitive operations such as minting, withdrawing, and parameter changes have no rate limits. An attacker or compromised admin can drain or disrupt in a single transaction or rapid sequence."
+      },
+      "code_context": null,
+      "source": "seed",
+      "curation": "critical",
+      "relevance_score": 1.0,
+      "confidence": 1.0,
+      "ingested_at": "2026-03-27T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": null,
+      "confirmed_by": []
+    },
+    {
+      "id": "seed:ordering-assumptions",
+      "slug": "ordering-assumptions",
+      "title": "Ordering Assumptions",
+      "impact": "HIGH",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["ordering", "MEV", "frontrunning", "sequencing", "temporal"],
+      "category": "Temporal",
+      "summary": "Design assumes specific operation order without enforcing it",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Sequential operations without enforced sequencing",
+          "Price updates assumed to arrive before dependent operations",
+          "No commit-reveal scheme where ordering matters"
+        ],
+        "description": "The design assumes operations execute in a specific order but doesn't enforce it. MEV searchers, frontrunners, or concurrent users can reorder transactions to extract value."
+      },
+      "code_context": null,
+      "source": "seed",
+      "curation": "critical",
+      "relevance_score": 1.0,
+      "confidence": 1.0,
+      "ingested_at": "2026-03-27T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": null,
+      "confirmed_by": []
+    }
+  ]
+}

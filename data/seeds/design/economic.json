@@ -1,0 +1,97 @@
+{
+  "domain": "economic-design",
+  "description": "Design-level economic patterns and anti-patterns",
+  "level": "design",
+  "entries": [
+    {
+      "id": "seed:missing-invariant-definitions",
+      "slug": "missing-invariant-definitions",
+      "title": "Missing Invariant Definitions",
+      "impact": "HIGH",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["invariant", "accounting", "value-flow", "economic"],
+      "category": "Economic Design",
+      "summary": "Value flows described without stating properties that must always hold",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Token flows without conservation invariants",
+          "Fee mechanisms without constraint specifications",
+          "No explicit statement of what must always be true"
+        ],
+        "description": "The design describes value flows but doesn't state the properties that must always hold. Without explicit invariants, there's no way to verify correctness or detect violations."
+      },
+      "code_context": null,
+      "source": "seed",
+      "curation": "critical",
+      "relevance_score": 1.0,
+      "confidence": 1.0,
+      "ingested_at": "2026-03-27T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": null,
+      "confirmed_by": []
+    },
+    {
+      "id": "seed:unanalyzed-extraction-vectors",
+      "slug": "unanalyzed-extraction-vectors",
+      "title": "Unanalyzed Extraction Vectors",
+      "impact": "HIGH",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["extraction", "flash-loan", "MEV", "sandwich", "economic"],
+      "category": "Economic Design",
+      "summary": "No consideration of whether attacker can extract more value than contributed",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Share-based accounting without first-depositor protection",
+          "Price-sensitive operations without slippage bounds",
+          "No mention of MEV, frontrunning, or flash loan scenarios"
+        ],
+        "description": "The design doesn't consider whether an attacker can extract more value than they contribute. Flash loans, sandwich attacks, and donation attacks are not addressed."
+      },
+      "code_context": null,
+      "source": "seed",
+      "curation": "critical",
+      "relevance_score": 1.0,
+      "confidence": 1.0,
+      "ingested_at": "2026-03-27T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": null,
+      "confirmed_by": []
+    },
+    {
+      "id": "seed:incentive-misalignment",
+      "slug": "incentive-misalignment",
+      "title": "Incentive Misalignment",
+      "impact": "MEDIUM",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["incentives", "governance", "game-theory", "economic"],
+      "category": "Economic Design",
+      "summary": "Design creates incentives rewarding behavior contrary to protocol goals",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Reward mechanisms that can be gamed by rational actors",
+          "Governance votes purchasable cheaply",
+          "Liquidation incentives that create cascading failures"
+        ],
+        "description": "The design creates incentives that reward behavior contrary to protocol goals. Rational actors deviate from intended usage because deviation is more profitable."
+      },
+      "code_context": null,
+      "source": "seed",
+      "curation": "critical",
+      "relevance_score": 1.0,
+      "confidence": 1.0,
+      "ingested_at": "2026-03-27T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": null,
+      "confirmed_by": []
+    }
+  ]
+}

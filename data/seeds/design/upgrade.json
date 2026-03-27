@@ -1,0 +1,67 @@
+{
+  "domain": "upgrade-migration",
+  "description": "Design-level upgrade and migration patterns and anti-patterns",
+  "level": "design",
+  "entries": [
+    {
+      "id": "seed:unsafe-upgrade-patterns",
+      "slug": "unsafe-upgrade-patterns",
+      "title": "Unsafe Upgrade Patterns",
+      "impact": "HIGH",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["upgrade", "proxy", "storage-layout", "migration"],
+      "category": "Upgrade and Migration",
+      "summary": "Proxy upgrades without addressing storage layout, in-flight state, or initialization replay",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Upgradeable via proxy with no storage layout constraints",
+          "No initializer protection specification",
+          "No migration procedure for state changes between versions"
+        ],
+        "description": "The design specifies proxy upgrades without addressing storage layout compatibility, in-flight state corruption, or initialization replay."
+      },
+      "code_context": null,
+      "source": "seed",
+      "curation": "critical",
+      "relevance_score": 1.0,
+      "confidence": 1.0,
+      "ingested_at": "2026-03-27T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": null,
+      "confirmed_by": []
+    },
+    {
+      "id": "seed:no-versioning-strategy",
+      "slug": "no-versioning-strategy",
+      "title": "No Versioning Strategy",
+      "impact": "MEDIUM",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["versioning", "migration", "compatibility", "upgrade"],
+      "category": "Upgrade and Migration",
+      "summary": "No specification for version coexistence during migration",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Upgrade described without version transition plan",
+          "No specification for how existing positions handle upgrade",
+          "External integrations not addressed during version migration"
+        ],
+        "description": "The design doesn't specify how different versions of the protocol coexist during migration periods. Old and new contracts may interact in undefined ways."
+      },
+      "code_context": null,
+      "source": "seed",
+      "curation": "critical",
+      "relevance_score": 1.0,
+      "confidence": 1.0,
+      "ingested_at": "2026-03-27T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": null,
+      "confirmed_by": []
+    }
+  ]
+}
