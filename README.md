@@ -54,3 +54,25 @@ Design-level seeds derived from common design flaws (13 patterns across 6 domain
 - State management — incomplete state machine, stuck state recovery
 - Temporal — missing rate limiting, ordering assumptions
 - Upgrade/migration — unsafe upgrade patterns, no versioning strategy
+
+## Contributing
+
+This KB gets stronger with every review. After running a design review or code audit, use `/kb-contribute` to submit confirmed patterns back as a PR.
+
+Contributions are:
+- **Generalized** — protocol-specific names stripped, patterns abstracted for reuse
+- **Auditor-approved** — every entry reviewed by the auditor before submission
+- **Attributed** — each entry tracks its `contributor` field
+
+### How to contribute
+
+1. Run a review with `design-review` or `audit-sandbox`
+2. Confirm findings via `/review-feedback`
+3. Run `/kb-contribute` — exports confirmed patterns and opens a PR against this repo
+4. PR is reviewed and merged by maintainers
+
+### Contributors
+
+<!-- Auto-generated from merged contribution PRs -->
+
+*No community contributions yet. Be the first!*
