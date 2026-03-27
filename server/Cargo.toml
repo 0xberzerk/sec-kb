@@ -1,0 +1,16 @@
+[package]
+name = "knowledge-base"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+kb-core = { path = "../kb-core" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+anyhow = "1"
+chrono = { version = "0.4", features = ["serde"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+rmcp = { version = "1.1", features = ["server", "transport-io", "macros"] }
+schemars = "1.0"
+tokio = { version = "1", features = ["full"] }
