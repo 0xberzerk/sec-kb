@@ -286,6 +286,7 @@ mod tests {
             last_curated_at: None,
             auditor_notes: None,
             confirmed_by: vec![],
+            contributor: None,
         }
     }
 

@@ -182,6 +182,7 @@ fn to_kb_entry(f: IngestFinding) -> Option<KbEntry> {
         last_curated_at: None,
         auditor_notes: None,
         confirmed_by: vec![],
+        contributor: None,
     })
 }
 

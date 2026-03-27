@@ -175,6 +175,12 @@ pub struct KbEntry {
     /// Which pipelines have confirmed/used this entry.
     #[serde(default)]
     pub confirmed_by: Vec<PipelineConfirmation>,
+
+    // -- Attribution --
+    /// Who contributed this entry. GitHub username, team name, or identifier.
+    /// Empty for Solodit-sourced entries. Set by /kb-contribute for community contributions.
+    #[serde(default)]
+    pub contributor: Option<String>,
 }
 
 // ---------------------------------------------------------------------------
