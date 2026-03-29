@@ -1,0 +1,304 @@
+{
+  "domain": "arithmetic-design",
+  "description": "Design-level arithmetic and dimensional consistency patterns",
+  "level": "design",
+  "entries": [
+    {
+      "id": "seed:unit-mismatch-arithmetic",
+      "slug": "unit-mismatch-arithmetic",
+      "title": "Incompatible Dimensions in Arithmetic Operations",
+      "impact": "HIGH",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["arithmetic", "precision", "unit-conversion", "dimensional"],
+      "category": "Arithmetic Design",
+      "summary": "Arithmetic operations combine values with different semantic units without conversion",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Addition or subtraction of values representing different token types",
+          "No dimensional glossary defining what each numeric variable represents",
+          "Mixed use of tokens and shares without explicit conversion steps"
+        ],
+        "description": "Operations combine values with fundamentally different semantic meanings (e.g., adding token amounts to share amounts, or subtracting prices from balances). The result is mathematically meaningless. A dimensional glossary and explicit conversion functions prevent this class of bug."
+      },
+      "code_context": {
+        "indicators": [
+          "Addition/subtraction of variables with names suggesting different units (e.g., balance + shares)",
+          "No intermediate conversion call (convertToAssets, convertToShares) between incompatible types",
+          "Variables with different token origins combined in a single expression"
+        ],
+        "description": "Look for arithmetic operations where the two operands represent different semantic units. Common examples: tokenBalance + shareBalance, collateralAmount - debtAmount, priceA + priceB where A and B are different assets."
+      },
+      "source": "seed",
+      "curation": "critical",
+      "relevance_score": 1.0,
+      "confidence": 1.0,
+      "ingested_at": "2026-03-29T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": null,
+      "confirmed_by": []
+    },
+    {
+      "id": "seed:precision-overflow-scaling",
+      "slug": "precision-overflow-scaling",
+      "title": "Precision Overflow from Unscaled Multiplication",
+      "impact": "HIGH",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["arithmetic", "precision", "overflow", "scaling", "dimensional"],
+      "category": "Arithmetic Design",
+      "summary": "Multiplication of fixed-point values without scaling back produces precision overflow",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Multiplication of two high-precision values (D18 * D18, D18 * D27) without documented scaling step",
+          "No specification of intermediate precision limits",
+          "Absence of mulDiv or equivalent safe multiplication in arithmetic-heavy paths"
+        ],
+        "description": "When two fixed-point values are multiplied, their precisions add (D18 * D18 = D36, D18 * D27 = D45). Without scaling the result back, it either overflows uint256 or produces a value with incorrect magnitude. The design should specify precision at every arithmetic step."
+      },
+      "code_context": {
+        "indicators": [
+          "Direct multiplication of two D18 or higher precision values (amount * rate, amount * price)",
+          "Result stored without division by scaling factor (1e18, 1e27)",
+          "Missing use of Math.mulDiv or FullMath.mulDiv for safe scaled multiplication"
+        ],
+        "description": "Look for amount * price, amount * rate, or similar multiplications where both operands are scaled fixed-point values. The result must be divided by the appropriate scaling factor. D18 * D18 = D36 stored in a D18 variable is a critical bug."
+      },
+      "source": "seed",
+      "curation": "critical",
+      "relevance_score": 1.0,
+      "confidence": 1.0,
+      "ingested_at": "2026-03-29T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": null,
+      "confirmed_by": []
+    },
+    {
+      "id": "seed:wrong-scaling-direction",
+      "slug": "wrong-scaling-direction",
+      "title": "Wrong Scaling Direction in Precision Conversion",
+      "impact": "HIGH",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["arithmetic", "precision", "scaling", "dimensional"],
+      "category": "Arithmetic Design",
+      "summary": "Multiply used where divide is needed (or vice versa) when converting between precision levels",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Precision conversion steps without clear directional documentation",
+          "Values moving between systems with different decimal standards (D8 oracle to D18 internal)",
+          "No conversion factor constants with documented direction"
+        ],
+        "description": "When converting between precision levels (e.g., D8 Chainlink price to D18 internal representation), the direction of scaling matters. Multiplying by 1e10 when you should divide (or vice versa) produces values off by 10^20. The design should document every precision boundary and conversion direction."
+      },
+      "code_context": {
+        "indicators": [
+          "Multiplication by 1eN where division was intended, or vice versa",
+          "Price conversion from oracle precision to internal precision without clear comment",
+          "Variable named priceD18 assigned value * 1e10 from D8 source (should be * 1e10, but verify direction)"
+        ],
+        "description": "Look for scaling operations (multiply or divide by 1e6, 1e8, 1e9, 1e10, 1e18, 1e27) and verify the direction is correct. Converting D27 to D18 requires dividing by 1e9, not multiplying. Converting D8 to D18 requires multiplying by 1e10, not dividing."
+      },
+      "source": "seed",
+      "curation": "critical",
+      "relevance_score": 1.0,
+      "confidence": 1.0,
+      "ingested_at": "2026-03-29T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": null,
+      "confirmed_by": []
+    },
+    {
+      "id": "seed:cross-contract-dimension-assumption",
+      "slug": "cross-contract-dimension-assumption",
+      "title": "Cross-Contract Dimension Assumption Mismatch",
+      "impact": "HIGH",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["arithmetic", "integration", "cross-contract", "dimensional", "oracle"],
+      "category": "Arithmetic Design",
+      "summary": "Caller assumes different units or precision than what the external contract actually returns",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "External protocol integration without documenting return value dimensions",
+          "No verification of external contract's decimals() or precision specification",
+          "Assumption that all prices are D18 when some oracles return D8"
+        ],
+        "description": "When protocol A calls protocol B, A assumes a specific dimension and precision for the return value. If B returns a different dimension or precision than A expects, the result is silently wrong — often by orders of magnitude. Every cross-contract numeric boundary must document expected dimensions on both sides."
+      },
+      "code_context": {
+        "indicators": [
+          "External call return value used without precision adjustment",
+          "No check of external contract's decimals() before using return value",
+          "Comment saying D27 on a variable assigned from an external call that returns D18 or D8",
+          "oracle.latestRoundData() answer used directly without scaling to internal precision"
+        ],
+        "description": "Look for external calls where the return value is a numeric amount, price, or rate. Verify that the caller's assumed precision matches the callee's actual return precision. Chainlink returns D8 by default; ERC4626 vaults may return in underlying token decimals; Uniswap V3 uses Q96 fixed-point."
+      },
+      "source": "seed",
+      "curation": "critical",
+      "relevance_score": 1.0,
+      "confidence": 1.0,
+      "ingested_at": "2026-03-29T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": null,
+      "confirmed_by": []
+    },
+    {
+      "id": "seed:decimal-mismatch-token-pair",
+      "slug": "decimal-mismatch-token-pair",
+      "title": "Token Decimal Mismatch in Multi-Asset Arithmetic",
+      "impact": "HIGH",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["arithmetic", "decimals", "token", "multi-asset", "dimensional"],
+      "category": "Arithmetic Design",
+      "summary": "Arithmetic on token amounts with different decimal places without normalization",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Protocol handles multiple tokens without decimal normalization layer",
+          "Arithmetic combining USDC (D6) and WETH (D18) amounts directly",
+          "No documented decimal handling strategy for multi-token operations"
+        ],
+        "description": "When a protocol handles tokens with different decimal places (USDC=6, WETH=18, WBTC=8), arithmetic that combines their raw amounts produces incorrect results. A 1 USDC balance (1e6) added to a 1 WETH balance (1e18) gives 1000000000001000000 — meaningless. The design must normalize all token amounts to a common precision before combining."
+      },
+      "code_context": {
+        "indicators": [
+          "balanceOf() results from different tokens used in same arithmetic expression",
+          "No multiplication by 10**(18 - decimals) or similar normalization",
+          "Hardcoded 1e18 divisor applied to tokens that may have 6 or 8 decimals"
+        ],
+        "description": "Look for arithmetic that combines amounts from tokens with potentially different decimals. Common in: multi-collateral systems, DEX pairs, portfolio valuations, cross-chain bridges. The fix is to normalize to a common precision before any arithmetic."
+      },
+      "source": "seed",
+      "curation": "critical",
+      "relevance_score": 1.0,
+      "confidence": 1.0,
+      "ingested_at": "2026-03-29T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": null,
+      "confirmed_by": []
+    },
+    {
+      "id": "seed:implicit-dimensionless-constant",
+      "slug": "implicit-dimensionless-constant",
+      "title": "Implicit Dimensionless Constant with Hidden Units",
+      "impact": "MEDIUM",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["arithmetic", "constants", "dimensional"],
+      "category": "Arithmetic Design",
+      "summary": "Numeric constant treated as dimensionless but actually carries semantic units",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Named constants without documented dimensions (MULTIPLIER, FACTOR, THRESHOLD)",
+          "Magic numbers in formulas without comments explaining their units",
+          "Constants derived from external parameters without dimension tracking"
+        ],
+        "description": "Constants like MULTIPLIER, FACTOR, or THRESHOLD are often assumed dimensionless ({1}) but actually represent a price, amount, or rate. When used in arithmetic, the hidden dimension produces incorrect results. Every numeric constant should have an explicit dimensional annotation."
+      },
+      "code_context": {
+        "indicators": [
+          "Constants named generically (MULTIPLIER, FACTOR, SCALE) without dimensional comment",
+          "Literal numbers (1e18, 1e8) used in formulas without explanation of what they represent",
+          "Constructor parameters or immutable values with no NatSpec documenting their dimension"
+        ],
+        "description": "Look for constants used in arithmetic where the dimension is ambiguous. Is PRICE_FACTOR a price ({UoA/tok}), a scaling factor ({1}), or a precision constant? Trace how it's used to determine its actual dimension, then verify it matches assumptions at every use site."
+      },
+      "source": "seed",
+      "curation": "useful",
+      "relevance_score": 1.0,
+      "confidence": 1.0,
+      "ingested_at": "2026-03-29T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": null,
+      "confirmed_by": []
+    },
+    {
+      "id": "seed:time-unit-confusion",
+      "slug": "time-unit-confusion",
+      "title": "Time Unit Confusion in Rate Calculations",
+      "impact": "MEDIUM",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["arithmetic", "temporal", "rates", "dimensional"],
+      "category": "Arithmetic Design",
+      "summary": "Annual rate applied where per-second rate expected, or vice versa",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Interest or fee rates without explicit time unit documentation",
+          "Rate parameters that could be annual, daily, or per-second",
+          "No SECONDS_PER_YEAR or equivalent time conversion constant"
+        ],
+        "description": "Interest rates, fee rates, and yield rates have an implicit time dimension. An annual rate of 5% applied per-second (without dividing by seconds-per-year) produces astronomical results. The design must specify the time unit for every rate and document all time conversions."
+      },
+      "code_context": {
+        "indicators": [
+          "Rate variable multiplied by block.timestamp delta without time unit conversion",
+          "No SECONDS_PER_YEAR constant in contracts with interest calculations",
+          "Rate parameter documented as 'annual' but used with elapsed seconds directly"
+        ],
+        "description": "Look for rate * elapsed calculations. If the rate is annual ({1/year}) and elapsed is in seconds ({s}), the result is off by ~31.5 million (seconds per year). Verify that time units are consistent: either convert rate to per-second before multiplication, or convert elapsed to years."
+      },
+      "source": "seed",
+      "curation": "useful",
+      "relevance_score": 1.0,
+      "confidence": 1.0,
+      "ingested_at": "2026-03-29T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": null,
+      "confirmed_by": []
+    },
+    {
+      "id": "seed:fee-dimension-mismatch",
+      "slug": "fee-dimension-mismatch",
+      "title": "Fee Applied to Wrong Base Dimension",
+      "impact": "MEDIUM",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["arithmetic", "fees", "dimensional"],
+      "category": "Arithmetic Design",
+      "summary": "Fee percentage applied to USD value when it should apply to token amount, or vice versa",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Fee mechanism without specifying what the fee base is (token amount vs USD value)",
+          "Percentage fee that could apply to either raw amounts or converted values",
+          "No distinction between 'fee on input' vs 'fee on output' in value conversions"
+        ],
+        "description": "A fee percentage ({1}) must be applied to the correct base dimension. Applying a 1% fee to a USD value instead of a token amount (or vice versa) produces a different result whenever the token price differs from 1. The design must specify the fee base dimension explicitly."
+      },
+      "code_context": {
+        "indicators": [
+          "Fee calculation that multiplies amount * price * feeRate in a single expression",
+          "Fee deducted after price conversion when it should be deducted before (or vice versa)",
+          "Inconsistent fee base between deposit and withdrawal paths"
+        ],
+        "description": "Look for fee calculations and verify the base dimension. Is the fee applied to {tok} (token amount) or {UoA} (USD value)? Then verify this matches the protocol's intent. A fee on deposits should typically apply to the token amount before share conversion, not after."
+      },
+      "source": "seed",
+      "curation": "useful",
+      "relevance_score": 1.0,
+      "confidence": 1.0,
+      "ingested_at": "2026-03-29T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": null,
+      "confirmed_by": []
+    }
+  ]
+}
