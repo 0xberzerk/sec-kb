@@ -1,0 +1,121 @@
+{
+  "domain": "lazy-settlement",
+  "description": "Design-level patterns in lazy/deferred settlement models: admin parameter changes, MEV exposure, retroactive grants",
+  "level": "design",
+  "entries": [
+    {
+      "id": "community:lazy-settlement-admin-parameter-change",
+      "slug": "lazy-settlement-admin-parameter-change",
+      "title": "Lazy settlement model does not account for admin parameter changes — governance operations bypass settlement",
+      "impact": "HIGH",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["settlement", "lazy-evaluation", "governance", "parameter-change", "root-cause"],
+      "category": "Lazy Settlement",
+      "summary": "A lazy settlement model that defers state updates until user interaction fails to account for admin/governance operations that change parameters (rates, caps, weights) without triggering settlement first. Every unsettled period retroactively uses the new parameters.",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Settlement is triggered lazily by user interactions, not by parameter changes",
+          "Governance can change rates, caps, or weights without calling settle first",
+          "The design has settle-before-change for some parameter types but not all",
+          "Accumulator-based accounting with lazy delta computation"
+        ],
+        "description": "Lazy settlement models defer state resolution until the next user interaction. This is efficient but creates a vulnerability: admin operations (rate changes, cap changes, component lifecycle transitions) modify the parameters that settlement uses, but don't trigger settlement themselves. The entire unsettled period is then computed with the new parameters, enabling retroactive value extraction. The fix is to generalize 'settle before parameter change' to ALL admin operations, not just a subset."
+      },
+      "code_context": null,
+      "source": "manual",
+      "curation": "useful",
+      "relevance_score": 1.0,
+      "confidence": 0.95,
+      "ingested_at": "2026-03-30T23:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": "Root cause finding. Resolves 3 high-severity findings with one architectural principle. Design already had the correct pattern for one parameter type but failed to generalize.",
+      "confirmed_by": [
+        {
+          "pipeline": "design_review",
+          "confirmed_at": "2026-03-30T23:00:00Z",
+          "context": "Confirmed as intersection finding in design review — root cause for component lifecycle vulnerabilities"
+        }
+      ],
+      "contributor": "design-review-pipeline"
+    },
+    {
+      "id": "community:lazy-settlement-mev-frontrunning",
+      "slug": "lazy-settlement-mev-frontrunning",
+      "title": "Lazy settlement enables front-running of parameter reductions to lock in favorable rates for the entire unsettled period",
+      "impact": "HIGH",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["settlement", "MEV", "frontrunning", "parameter-change"],
+      "category": "Lazy Settlement",
+      "summary": "When parameter changes (allocation reductions, cap decreases) arrive, an MEV-aware actor front-runs by triggering settlement at the old, more favorable parameters for the entire unsettled period. The subsequent parameter change processes as a no-op for already-settled accounts.",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Parameter changes are processed in the same block as user transactions",
+          "Settlement locks in the current parameters for the entire unsettled period",
+          "Automated parameter adjustments (cap operators, rebalancers) create predictable targets",
+          "No commit-reveal or time-delayed parameter application"
+        ],
+        "description": "Lazy settlement creates a systematic MEV opportunity: when a parameter reduction is pending, an actor who settles first captures the old (higher) rate for the entire unsettled period. This is especially exploitable when parameter changes are automated and predictable. The attack is standard MEV (mempool monitoring, front-running) requiring no special permissions or capital."
+      },
+      "code_context": null,
+      "source": "manual",
+      "curation": "useful",
+      "relevance_score": 1.0,
+      "confidence": 0.9,
+      "ingested_at": "2026-03-30T23:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": "Confirmed with 'likely' exploitability. Standard MEV strategy with automated cap operator providing predictable targets.",
+      "confirmed_by": [
+        {
+          "pipeline": "design_review",
+          "confirmed_at": "2026-03-30T23:00:00Z",
+          "context": "Confirmed in design review — allocation and cap change front-running"
+        }
+      ],
+      "contributor": "design-review-pipeline"
+    },
+    {
+      "id": "community:zero-rate-unpause-retroactive-grant",
+      "slug": "zero-rate-unpause-retroactive-grant",
+      "title": "Pausing via zero-rate with lazy settlement grants retroactive value for entire paused period when unpaused",
+      "impact": "HIGH",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["settlement", "pausing", "zero-rate", "retroactive", "lifecycle"],
+      "category": "Lazy Settlement",
+      "summary": "Using a zero rate/cap to pause a component in a lazy settlement system doesn't prevent value accumulation in the global index. When the rate is restored, the first settlement covers the entire paused period because no historical rate tracking exists.",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Pausing implemented via zero rate/cap rather than component deregistration",
+          "Global accumulator index continues advancing during pause (paused component's weight still counted)",
+          "No settlement triggered on pause or unpause transitions",
+          "No historical rate/cap tracking — settlement evaluates current parameters only"
+        ],
+        "description": "When a component is paused by setting its rate or cap to zero, the global accumulator index continues to advance (the component's weight is still counted). The component's local index freezes because no one interacts with it. On unpause, the first settlement computes the delta between the current global index and the frozen local index, covering the entire paused period. Since the rate/cap check evaluates only the current value (non-zero, post-unpause), the full delta is granted."
+      },
+      "code_context": null,
+      "source": "manual",
+      "curation": "useful",
+      "relevance_score": 1.0,
+      "confidence": 0.9,
+      "ingested_at": "2026-03-30T23:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": "Confirmed. Absorbs deprecated kill/revive finding — same structural vulnerability under zero-rate pause model.",
+      "confirmed_by": [
+        {
+          "pipeline": "design_review",
+          "confirmed_at": "2026-03-30T23:00:00Z",
+          "context": "Confirmed in design review — zero-rate component unpause retroactive grant"
+        }
+      ],
+      "contributor": "design-review-pipeline"
+    }
+  ]
+}

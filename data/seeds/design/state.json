@@ -62,6 +62,45 @@
       "last_curated_at": null,
       "auditor_notes": null,
       "confirmed_by": []
+    },
+    {
+      "id": "community:unbounded-enumeration-dos",
+      "slug": "unbounded-enumeration-dos",
+      "title": "Unbounded loop over user-controlled collection in value-sensitive path creates permanent DoS with all-or-nothing semantics",
+      "impact": "HIGH",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["state-management", "dos", "gas-limit", "unbounded-loop", "enumeration"],
+      "category": "State Management",
+      "summary": "A value-sensitive operation loops through a user-controlled, unbounded collection. Combined with all-or-nothing semantics, exceeding the block gas limit permanently locks both the value and potentially the underlying assets.",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Loop iterates over a per-user collection with no upper bound on size",
+          "No partial processing or pagination mechanism specified",
+          "All-or-nothing invariant prevents partial processing or withdrawals",
+          "Withdrawal/unstake triggers the same enumeration loop as the value claim path",
+          "Collection growth can happen organically (automated managers, normal usage)"
+        ],
+        "description": "When a design loops through all user positions/stakes in a value-sensitive path and enforces an all-or-nothing invariant, the user's collection size becomes a DoS vector. If the collection exceeds what can be processed in a single block's gas limit, the operation permanently reverts. The DoS is especially severe when withdrawal/unstake triggers the same enumeration loop, as it locks both accrued value AND the underlying principal with no recovery path."
+      },
+      "code_context": null,
+      "source": "manual",
+      "curation": "useful",
+      "relevance_score": 1.0,
+      "confidence": 0.9,
+      "ingested_at": "2026-03-30T23:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": "Confirmed. Design acknowledged the risk in open questions but left unresolved. Principal locking escalates impact beyond value claim DoS.",
+      "confirmed_by": [
+        {
+          "pipeline": "design_review",
+          "confirmed_at": "2026-03-30T23:00:00Z",
+          "context": "Confirmed in design review — unbounded position loop in concentrated liquidity component"
+        }
+      ],
+      "contributor": "design-review-pipeline"
     }
   ]
 }
