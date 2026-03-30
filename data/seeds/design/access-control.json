@@ -62,6 +62,121 @@
       "last_curated_at": null,
       "auditor_notes": null,
       "confirmed_by": []
+    },
+    {
+      "id": "community:unscoped-approval-check",
+      "slug": "unscoped-approval-check",
+      "title": "Approval check validates caller status globally but not scoped to the specific beneficiary",
+      "impact": "HIGH",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["access-control", "approval", "authorization", "scoping"],
+      "category": "Access Control",
+      "summary": "An approval mechanism checks whether the caller is approved by anyone, rather than whether the caller is approved by the specific account being acted upon. Any address approved by a single throwaway account can act on behalf of every other user.",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Approval check takes only the caller (msg.sender) as input, not the beneficiary account",
+          "Approval mapping is single-key (operator -> bool) rather than double-key (account -> operator -> bool)",
+          "Prose describes per-user approval but reference code or pseudocode shows global check",
+          "Operator can direct value to an arbitrary recipient parameter"
+        ],
+        "description": "When a design specifies an operator/delegate approval model, the approval check must be scoped to the specific account being acted upon. A global approval check (is this address approved by anyone?) instead of a scoped check (is this address approved by THIS account?) allows any approved operator to act on behalf of all users, not just the user who granted approval. This is especially dangerous when combined with a recipient parameter that allows directing value to arbitrary addresses."
+      },
+      "code_context": null,
+      "source": "manual",
+      "curation": "useful",
+      "relevance_score": 1.0,
+      "confidence": 0.95,
+      "ingested_at": "2026-03-30T23:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": "Confirmed as critical. Reference code showed approval check with only caller parameter, without beneficiary account, despite prose describing per-user approval.",
+      "confirmed_by": [
+        {
+          "pipeline": "design_review",
+          "confirmed_at": "2026-03-30T23:00:00Z",
+          "context": "Confirmed in design review — operator approval for user value claims"
+        }
+      ],
+      "contributor": "design-review-pipeline"
+    },
+    {
+      "id": "community:access-revocation-forfeits-accrued-value",
+      "slug": "access-revocation-forfeits-accrued-value",
+      "title": "Access revocation immediately blocks value claims with no grace period, permanently locking accrued user value",
+      "impact": "HIGH",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["access-control", "lifecycle", "value-locking", "governance"],
+      "category": "Access Control",
+      "summary": "When a component is deregistered or access-revoked, all pending value claims through that component are immediately blocked. Users with accrued but unclaimed value have no alternative claim path, grace period, or forced settlement mechanism.",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Component deregistration/revocation checks in the claim path with no alternative route",
+          "No forced settlement or state cleanup on deregistration",
+          "No grace period between deregistration announcement and access revocation",
+          "Governance can trigger deregistration without settling pending user value first"
+        ],
+        "description": "When a design uses component registration as an access gate for value claims, deregistration must be treated as a value-affecting governance action. If deregistration immediately revokes claim access without first settling pending value or providing a grace period, all users with accrued value through that component permanently lose it. The fix is to mandate settlement before deregistration or provide an emergency claim path that bypasses the registration check."
+      },
+      "code_context": null,
+      "source": "manual",
+      "curation": "useful",
+      "relevance_score": 1.0,
+      "confidence": 0.9,
+      "ingested_at": "2026-03-30T23:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": "Confirmed with 5 independent sources. Strongest corroboration in the pipeline.",
+      "confirmed_by": [
+        {
+          "pipeline": "design_review",
+          "confirmed_at": "2026-03-30T23:00:00Z",
+          "context": "Confirmed in design review — component deregistration blocks user claims permanently"
+        }
+      ],
+      "contributor": "design-review-pipeline"
+    },
+    {
+      "id": "community:persistent-approval-no-expiry",
+      "slug": "persistent-approval-no-expiry",
+      "title": "Value-directing approval stored as persistent boolean with no expiry, scope, or rate limit",
+      "impact": "MEDIUM",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["access-control", "approval", "operator", "expiry"],
+      "category": "Access Control",
+      "summary": "Operator approval for value-sensitive operations is a permanent boolean that never expires, decrements, or rate-limits. A compromised or stale approval drains all future value indefinitely until manual revocation.",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Approval is a boolean (not a bounded allowance that decrements)",
+          "No expiry timestamp or TTL on approvals",
+          "Approved operator can direct minted/claimed value to an arbitrary recipient",
+          "No notification mechanism when approved operator acts",
+          "Protocol upgrade paths (e.g., router migrations) create stale approval vectors"
+        ],
+        "description": "When a design uses boolean approval for value-directing operations (as opposed to bounded allowances that decrement per use), the approval persists indefinitely. Unlike ERC20 allowances where the approved amount decreases, boolean approvals allow unlimited future claims. This is especially dangerous when combined with an arbitrary recipient parameter, as a compromised operator can redirect all future value without the user noticing."
+      },
+      "code_context": null,
+      "source": "manual",
+      "curation": "useful",
+      "relevance_score": 1.0,
+      "confidence": 0.85,
+      "ingested_at": "2026-03-30T23:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": "Confirmed. Design deliberately chose boolean over bounded allowance for value-directing operations.",
+      "confirmed_by": [
+        {
+          "pipeline": "design_review",
+          "confirmed_at": "2026-03-30T23:00:00Z",
+          "context": "Confirmed in design review — operator approval model"
+        }
+      ],
+      "contributor": "design-review-pipeline"
     }
   ]
 }

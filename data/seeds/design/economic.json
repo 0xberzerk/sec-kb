@@ -92,6 +92,120 @@
       "last_curated_at": null,
       "auditor_notes": null,
       "confirmed_by": []
+    },
+    {
+      "id": "community:claim-time-parameter-retroactivity",
+      "slug": "claim-time-parameter-retroactivity",
+      "title": "Fee or split parameters read at claim time rather than accrual time — changes retroactively affect previously earned value",
+      "impact": "MEDIUM",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["economic", "retroactive", "parameter-resolution", "claim-time", "fee-split"],
+      "category": "Economic Design",
+      "summary": "When fee/split/share parameters are resolved at claim time instead of accrual time, governance changes to these parameters retroactively affect all previously accrued but unclaimed value.",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Fee, split, or share percentage queried from external contract at claim time",
+          "No snapshotting or checkpointing of parameter values at accrual time",
+          "Governance can change the parameter between accrual and claim",
+          "No time-weighted average or historical parameter tracking"
+        ],
+        "description": "Designs that resolve fee/split parameters at claim time rather than accrual time create a retroactivity problem. If a fee split increases from 0% to 5% between when value is earned and when it's claimed, the user loses 5% of previously-earned value to a split recipient that didn't exist when the value was accrued. The fix is to snapshot parameters at accrual time or use time-weighted averaging."
+      },
+      "code_context": null,
+      "source": "manual",
+      "curation": "useful",
+      "relevance_score": 1.0,
+      "confidence": 0.85,
+      "ingested_at": "2026-03-30T23:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": "Confirmed. Impact bounded by hard 5% cap but pattern is generalizable.",
+      "confirmed_by": [
+        {
+          "pipeline": "design_review",
+          "confirmed_at": "2026-03-30T23:00:00Z",
+          "context": "Confirmed in design review — fee split retroactivity"
+        }
+      ],
+      "contributor": "design-review-pipeline"
+    },
+    {
+      "id": "community:zero-value-operations-state-manipulation",
+      "slug": "zero-value-operations-state-manipulation",
+      "title": "Zero-value operations that modify global state can be used as cost-free tools for adversarial state manipulation",
+      "impact": "MEDIUM",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["economic", "zero-value", "state-manipulation", "MEV", "settlement"],
+      "category": "Economic Design",
+      "summary": "Operations that succeed with zero value but still modify global state (advancing accumulators, settling indexes) become cost-free tools for adversarial manipulation.",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Operations succeed when the computed value is zero (no early return or skip)",
+          "Zero-value operations still execute state-modifying side effects",
+          "No gas cost or economic stake required beyond transaction fees",
+          "Settlement timing affects value distribution for other users"
+        ],
+        "description": "When a design allows zero-value operations to proceed and modify global state, these operations become free tools for adversaries. Zero-value operations that advance settlement state let attackers control when settlement happens for all users on a component, enabling timing attacks, front-running coordination, and compound attack chains."
+      },
+      "code_context": null,
+      "source": "manual",
+      "curation": "useful",
+      "relevance_score": 1.0,
+      "confidence": 0.85,
+      "ingested_at": "2026-03-30T23:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": "Confirmed. Key enabler in two compound attack chains.",
+      "confirmed_by": [
+        {
+          "pipeline": "design_review",
+          "confirmed_at": "2026-03-30T23:00:00Z",
+          "context": "Confirmed in design review — zero-value operations as settlement manipulation tool"
+        }
+      ],
+      "contributor": "design-review-pipeline"
+    },
+    {
+      "id": "community:mixed-temporal-units-cross-chain",
+      "slug": "mixed-temporal-units-cross-chain",
+      "title": "Mixing block-based and timestamp-based units for related mechanisms creates cross-chain inconsistency",
+      "impact": "MEDIUM",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["temporal", "cross-chain", "units", "block-time", "calibration"],
+      "category": "Economic Design",
+      "summary": "When one mechanism uses block counts and a related mechanism uses timestamps, the relationship between them varies across chains with different block times.",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "One mechanism uses block numbers/counts while a related mechanism uses timestamps",
+          "Multi-chain deployment with varying block times",
+          "No per-chain calibration specified for the block-based parameter",
+          "The block-based mechanism gates or modifies the timestamp-based mechanism"
+        ],
+        "description": "Designs that mix temporal units (blocks vs timestamps) for related mechanisms create implicit cross-chain inconsistency. A 1000-block penalty window is ~3.3 hours on Ethereum (12s blocks) but ~4 minutes on Arbitrum (0.25s blocks). If the timestamp-based mechanism interacts with the block-based mechanism, the interaction behaves differently on each chain without explicit per-chain calibration."
+      },
+      "code_context": null,
+      "source": "manual",
+      "curation": "useful",
+      "relevance_score": 1.0,
+      "confidence": 0.8,
+      "ingested_at": "2026-03-30T23:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": "Confirmed. Impact bounded to penalty effectiveness, not direct fund loss.",
+      "confirmed_by": [
+        {
+          "pipeline": "design_review",
+          "confirmed_at": "2026-03-30T23:00:00Z",
+          "context": "Confirmed in design review — block-based penalty vs timestamp-based accrual"
+        }
+      ],
+      "contributor": "design-review-pipeline"
     }
   ]
 }
