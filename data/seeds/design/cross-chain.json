@@ -1,0 +1,161 @@
+{
+  "domain": "cross-chain",
+  "description": "Design-level cross-chain patterns and anti-patterns — messaging, coordination, trust boundaries between chains",
+  "level": "design",
+  "entries": [
+    {
+      "id": "community:atomic-report-and-check-coupling",
+      "slug": "atomic-report-and-check-coupling",
+      "title": "Cross-chain state reporting atomically coupled to a gatekeeping check creates self-reinforcing failure when the report would have helped pass the check",
+      "impact": "HIGH",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["cross-chain", "state-reporting", "self-reinforcing-loop", "atomic-coupling", "messaging"],
+      "category": "Cross-Chain",
+      "summary": "When a critical state update is piggybacked on a transaction that also runs a gatekeeping check, a revert on the check rolls back the state update -- including the update that would have let the check pass. Each retry faces the same or tighter check.",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Cross-chain messages carry both a state report and a value-moving operation in a single atomic transaction",
+          "The state report updates a counter used in a solvency/ceiling/cap check that governs the operation",
+          "No independent delivery path for the state report exists",
+          "The state being reported grows monotonically on the source chain between reports"
+        ],
+        "description": "When the state update and gatekeeping check are in the same transaction, a revert on the check discards the update. If the update is what would have allowed the check to pass (e.g., the check is tightening because the update is stale), every retry faces the same failing check. The loop is self-reinforcing: the state keeps growing on the source chain, the report keeps getting larger, and the gatekeeper keeps tightening. Only external intervention (parameter change, governance top-up) breaks the loop. The root cause is the absence of a decoupled delivery path for the state report."
+      },
+      "code_context": null,
+      "source": "manual",
+      "curation": "useful",
+      "relevance_score": 1.0,
+      "confidence": 0.9,
+      "ingested_at": "2026-04-15T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": "Confirmed. Piggybacked state update that governs its own delivery is an architectural anti-pattern.",
+      "confirmed_by": [
+        {
+          "pipeline": "design_review",
+          "confirmed_at": "2026-04-15T00:00:00Z",
+          "context": "Confirmed in cross-chain emission-accounting design review"
+        }
+      ],
+      "contributor": "0xBarba"
+    },
+    {
+      "id": "community:no-app-level-replay-protection",
+      "slug": "no-app-level-replay-protection",
+      "title": "Application delegates all replay protection to cross-chain transport -- transport compromise enables unlimited replay with no defense-in-depth",
+      "impact": "HIGH",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["cross-chain", "replay", "defense-in-depth", "messaging", "ISM", "trust-assumption"],
+      "category": "Cross-Chain",
+      "summary": "The application layer has no nonce, message-ID, or deduplication check on inbound cross-chain messages. Replay protection is delegated entirely to the transport (bridge/ISM/relayer). If the transport is compromised or a delivery bug bypasses it, the application mints or moves value per replay with no limit.",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Inbound cross-chain handler has no nonce/message-ID/deduplication check",
+          "Authentication chain is strictly linear (no redundant validation)",
+          "No per-chain rate limit, cumulative cap, or time delay on the value-moving path",
+          "Design explicitly delegates replay protection to the transport layer in external requirements"
+        ],
+        "description": "Cross-chain transports (bridges, ISMs, relays) typically guarantee single-delivery as part of their security model. When the application assumes this guarantee holds absolutely, there is no defense against transport compromise. An attacker who compromises the ISM or exploits a delivery bug can replay captured messages indefinitely -- each replay mints fresh value up to whatever cap the app enforces. Per-chain caps limit blast radius per chain, but a transport compromise typically enables multi-chain replay, so the effective loss is the sum of all chains' headrooms. Defense-in-depth (nonces, message-ID tracking, cumulative mint caps, rate limits, time delays) is standard practice but frequently omitted when the team implicitly trusts the transport."
+      },
+      "code_context": null,
+      "source": "manual",
+      "curation": "useful",
+      "relevance_score": 1.0,
+      "confidence": 0.9,
+      "ingested_at": "2026-04-15T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": "Confirmed as accepted risk by the team. Known but not mitigated.",
+      "confirmed_by": [
+        {
+          "pipeline": "design_review",
+          "confirmed_at": "2026-04-15T00:00:00Z",
+          "context": "Confirmed in cross-chain emission-accounting design review"
+        }
+      ],
+      "contributor": "0xBarba"
+    },
+    {
+      "id": "community:cross-chain-emergency-coordination-asymmetry",
+      "slug": "cross-chain-emergency-coordination-asymmetry",
+      "title": "Cross-chain emergency controls are one-sided -- halting one side does not halt the other, exposing users to an atomicity gap during every emergency",
+      "impact": "HIGH",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["cross-chain", "emergency", "pause", "coordination", "atomicity-gap"],
+      "category": "Cross-Chain",
+      "summary": "Pause or suspend mechanisms in a cross-chain design are applied on only one side. The other side continues operating normally, so user-initiated cross-chain operations still execute on the unpaused side but fail on the paused side. Every emergency action creates a window where users predictably enter the atomicity gap.",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Emergency controls (pause, suspend, freeze) are specified on only one chain",
+          "The other chain has no awareness mechanism (no cross-chain signal, no heartbeat, no local flag)",
+          "Users can still initiate cross-chain operations from the unpaused chain during the emergency",
+          "Those operations will predictably fail on the paused chain",
+          "No pre-emergency drain window, no queue-and-hold mechanism"
+        ],
+        "description": "Emergency mechanisms are often designed asymmetrically in cross-chain systems because bilateral coordination requires the very cross-chain transport that may be the failing component. Leaving pause as single-sided is sound for the 'transport is broken' scenario but creates a predictable harm path for every other emergency: users on the unpaused chain continue initiating operations, the paused chain rejects or holds them, and users end up in the atomicity gap (value dispatched, not received). The harm rate equals operation throughput times gap duration. Mitigations: best-effort cross-chain pause broadcast with local fallback, commit-reveal windows, queue-and-drain before suspension, or at minimum a user-facing notification mechanism so users don't initiate knowingly-failing operations."
+      },
+      "code_context": null,
+      "source": "manual",
+      "curation": "useful",
+      "relevance_score": 1.0,
+      "confidence": 0.9,
+      "ingested_at": "2026-04-15T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": "Confirmed. Team's redemption-path design intentionally allows continued operations during suspension as a drain-safe shutdown; the residual concern about emission-side unbacked tokens during suspension remains a separate confirmed finding.",
+      "confirmed_by": [
+        {
+          "pipeline": "design_review",
+          "confirmed_at": "2026-04-15T00:00:00Z",
+          "context": "Confirmed in cross-chain emission-accounting design review"
+        }
+      ],
+      "contributor": "0xBarba"
+    },
+    {
+      "id": "community:no-circuit-breaker-during-known-bad-upstream-state",
+      "slug": "no-circuit-breaker-during-known-bad-upstream-state",
+      "title": "Design allows users to execute value-destroying operations when the system knows those operations will fail -- no preventive mechanism, only reactive revert",
+      "impact": "HIGH",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["cross-chain", "circuit-breaker", "value-destruction", "atomicity-gap", "prevention"],
+      "category": "Cross-Chain",
+      "summary": "The design explicitly describes a scenario where a user-initiated operation will fail on one side while succeeding (destructively) on the other -- and provides no mechanism to prevent the user from initiating. The harm is not an edge case; it is the specified behavior.",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Design explicitly describes the failure mode: 'user can still call X, burn Y, dispatch Z' during known-bad state",
+          "No initiating-side awareness flag, heartbeat, or circuit breaker specified",
+          "No best-effort notification mechanism (not even a revert on initiation)",
+          "Recovery is reactive (retry after state fixes) rather than preventive (block initiation)",
+          "The design acknowledges the harm but does not propose prevention"
+        ],
+        "description": "A distinct class of cross-chain design flaw: the system knows (or can know) that an operation will fail on the receiving side, but does nothing to prevent the initiating side from executing the destructive half. Users burn value, dispatch messages, and the messages land in a failing state. The design usually acknowledges this harm in passing and relies on eventual retry for recovery. This is different from coordination-asymmetry issues (which are about governance timing gaps); this pattern is about the absence of any initiating-side preventive mechanism even in steady state. A simple local flag set by failed-return callbacks or governance signal, combined with a revert on initiation while the flag is set, would close the gap."
+      },
+      "code_context": null,
+      "source": "manual",
+      "curation": "useful",
+      "relevance_score": 1.0,
+      "confidence": 0.85,
+      "ingested_at": "2026-04-15T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": "Confirmed. Team will add UI-level alerting but not a contract-level preventive mechanism; acceptable per team risk posture.",
+      "confirmed_by": [
+        {
+          "pipeline": "design_review",
+          "confirmed_at": "2026-04-15T00:00:00Z",
+          "context": "Confirmed in cross-chain emission-accounting design review"
+        }
+      ],
+      "contributor": "0xBarba"
+    }
+  ]
+}

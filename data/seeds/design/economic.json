@@ -206,6 +206,84 @@
         }
       ],
       "contributor": "design-review-pipeline"
+    },
+    {
+      "id": "community:parallel-mint-outside-solvency-cap",
+      "slug": "parallel-mint-outside-solvency-cap",
+      "title": "Auxiliary mint path (fee, share, splitter) bypasses the main solvency cap, making total supply growth unbounded by the stated invariant",
+      "impact": "HIGH",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["economic", "solvency", "mint-cap", "parallel-mint", "invariant", "inflation"],
+      "category": "Economic Design",
+      "summary": "The design presents a solvency cap (ceiling, allocation, max supply) as the core constraint on minting. A secondary mint path -- typically for fees, team shares, or splitter recipients -- is not bounded by the same cap. A misconfigured or compromised parameter on the secondary path produces unbounded inflation while the stated invariant still holds.",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Primary mint path is bounded by an explicit cap (ceiling, max-supply, allocation)",
+          "Secondary mint path (fee share, team split, referral bonus, emission multiplier) mints in addition to the primary amount",
+          "The secondary mint is controlled by a parameter on a different contract than where the cap is enforced",
+          "No stated bound, timelock, or solvency check on the secondary-path parameter",
+          "The cap's calling contract does not know the split percentage or the absolute secondary amount"
+        ],
+        "description": "When the solvency-bearing contract passes an amount X to a minter that then mints X + f(X) -- where f(X) is determined by an external parameter -- the cap only constrains X, not total inflation. If f is governed by a parameter with no bound or timelock, a misconfiguration or compromise of that parameter produces arbitrary inflation. The stated invariant (primary mint <= cap) still holds, but 'total minted <= cap' does not. This pattern frequently appears in fee-share, team-rate, referral-bonus, and splitter-on-top-of-mint mechanisms."
+      },
+      "code_context": null,
+      "source": "manual",
+      "curation": "useful",
+      "relevance_score": 1.0,
+      "confidence": 0.9,
+      "ingested_at": "2026-04-15T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": "Confirmed. Team will bound the secondary-path parameter to mitigate.",
+      "confirmed_by": [
+        {
+          "pipeline": "design_review",
+          "confirmed_at": "2026-04-15T00:00:00Z",
+          "context": "Confirmed in cross-chain emission-accounting design review"
+        }
+      ],
+      "contributor": "0xBarba"
+    },
+    {
+      "id": "community:monotonic-accumulator-no-correction",
+      "slug": "monotonic-accumulator-no-correction",
+      "title": "Monotonic safety accumulator with no correction mechanism -- any overcount from rounding, concurrency, or ordering becomes permanent tightening",
+      "impact": "MEDIUM",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["economic", "accumulator", "monotonic", "overcount", "correction", "solvency"],
+      "category": "Economic Design",
+      "summary": "A monotonic accumulator (only increases) used in a safety check has no reverse or correction path. Any overcount -- from rounding, concurrent operations, out-of-order message arrival, or missing state resets -- permanently tightens downstream checks with no way to recover except through external intervention.",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Accumulator is explicitly documented as monotonic or 'only increases'",
+          "Accumulator feeds a safety/solvency check (check uses accumulator as a consumed-bound)",
+          "No correction, rollback, or decrement mechanism specified",
+          "Multiple sources feed the accumulator (different triggers, cross-chain messages, per-component reports)",
+          "Design assumes 'undercount is safe' without verifying that overcount is impossible"
+        ],
+        "description": "Monotonic accumulators are often chosen to simplify safety reasoning -- the system is assumed safe if the accumulator can only grow. But an overcount from rounding, concurrent writes, cross-chain message ordering, or a missed state reset permanently tightens all downstream checks. Since the accumulator has no decrement, recovery requires external intervention (parameter top-up, governance re-calibration) which may not exist in the design. Key risk factors that create overcount: (1) multi-source aggregation where the sources can report double-counted state, (2) rate-based computation using current parameters rather than per-interval parameters, (3) cross-chain message reordering that produces different final state than source-chain intent, (4) lifecycle transitions (kill/revive) that leave stale indexes enabling retroactive grants."
+      },
+      "code_context": null,
+      "source": "manual",
+      "curation": "useful",
+      "relevance_score": 1.0,
+      "confidence": 0.85,
+      "ingested_at": "2026-04-15T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": "Confirmed. Team mitigated via boundary-walk integration and activation-time synchronized state mutations.",
+      "confirmed_by": [
+        {
+          "pipeline": "design_review",
+          "confirmed_at": "2026-04-15T00:00:00Z",
+          "context": "Confirmed in cross-chain emission-accounting design review"
+        }
+      ],
+      "contributor": "0xBarba"
     }
   ]
 }

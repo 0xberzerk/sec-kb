@@ -101,6 +101,44 @@
         }
       ],
       "contributor": "design-review-pipeline"
+    },
+    {
+      "id": "community:lifecycle-transition-strands-allocation",
+      "slug": "lifecycle-transition-strands-allocation",
+      "title": "Lifecycle transitions (kill, deregister) remove a component from active-set triggers, but leave allocations or accumulators unable to reach their cleanup path",
+      "impact": "MEDIUM",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["state-management", "lifecycle", "stranded-value", "cleanup", "accumulator"],
+      "category": "State Management",
+      "summary": "A component removed from the active set (killed, deregistered, paused) still has an allocation in a global accumulator, but cannot participate in settlement or cleanup anymore. Allocated value accumulates as dead headroom proportional to time since removal.",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "Lifecycle transitions remove a component from the trigger surface (settlement, claim) but not from global accumulators",
+          "Global accumulator weight continues counting the removed component's share",
+          "No explicit cleanup trigger fires on the lifecycle transition",
+          "The only way to capture leftover allocation was via the triggers now unreachable"
+        ],
+        "description": "Kill/deregister/pause transitions often preserve a component's slot in a global accumulator (e.g., totalWeight unchanged when a component is killed) while removing access to the triggers that would settle the component. Between the transition and eventual reorganization, the allocation formerly going to the removed component accumulates as unreclaimable dead headroom. The missing cleanup is usually a documentation gap -- the triggers for surplus/refund capture are listed assuming an active component, and the removed-component case is not addressed."
+      },
+      "code_context": null,
+      "source": "manual",
+      "curation": "useful",
+      "relevance_score": 1.0,
+      "confidence": 0.85,
+      "ingested_at": "2026-04-15T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": "Confirmed; deregistered path patched, killed path handled via zero-rate model.",
+      "confirmed_by": [
+        {
+          "pipeline": "design_review",
+          "confirmed_at": "2026-04-15T00:00:00Z",
+          "context": "Confirmed in cross-chain emission-accounting design review"
+        }
+      ],
+      "contributor": "0xBarba"
     }
   ]
 }

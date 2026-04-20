@@ -62,6 +62,44 @@
       "last_curated_at": null,
       "auditor_notes": null,
       "confirmed_by": []
+    },
+    {
+      "id": "community:piggyback-only-state-reporting-dormancy",
+      "slug": "piggyback-only-state-reporting-dormancy",
+      "title": "Critical state reporting piggybacked on user activity creates unbounded staleness for inactive components",
+      "impact": "HIGH",
+      "quality_score": 5.0,
+      "firm": "",
+      "protocol": "",
+      "tags": ["temporal", "cross-chain", "state-reporting", "dormancy", "cadence"],
+      "category": "Temporal",
+      "summary": "A design where a safety-critical counter reaches its consumer only by hitchhiking on user-initiated transactions will silently drift for components with low activity. The safety property depends on activity cadence that cannot be guaranteed.",
+      "content": null,
+      "design_context": {
+        "indicators": [
+          "A safety counter is reported to its consumer only via payload attached to user-initiated messages",
+          "No standalone/keeper/periodic dispatch path exists",
+          "The protocol serves components with variable activity (multi-chain deployments, multi-pool, multi-gauge)",
+          "The underlying counter accumulates continuously regardless of whether reports are dispatched"
+        ],
+        "description": "When a critical counter can only reach its consumer by piggybacking on user activity, the safety property degrades silently for components with infrequent activity. The counter keeps growing on the source; the consumer operates on stale data. Dormancy condition is not 'zero activity' -- it is any period where activity cadence falls below the rate of counter growth. On multi-component systems, at least one component is typically in this state. The gap becomes the blast radius for any exploit targeting the consumer-side cap."
+      },
+      "code_context": null,
+      "source": "manual",
+      "curation": "useful",
+      "relevance_score": 1.0,
+      "confidence": 0.9,
+      "ingested_at": "2026-04-15T00:00:00Z",
+      "last_curated_at": null,
+      "auditor_notes": "Confirmed by team as accepted risk pending further design review. Mitigation options: keeper/periodic baseline dispatch, rate-of-activity monitoring.",
+      "confirmed_by": [
+        {
+          "pipeline": "design_review",
+          "confirmed_at": "2026-04-15T00:00:00Z",
+          "context": "Confirmed in cross-chain emission-accounting design review"
+        }
+      ],
+      "contributor": "0xBarba"
     }
   ]
 }
