@@ -15,5 +15,5 @@ export KB_DIR="${KB_DIR:-$SCRIPT_DIR/data}"
 
 # Resolve binary: container path first, then local build
 BINARY="/usr/local/lib/mcp-servers/knowledge-base"
-[[ -x "$BINARY" ]] || BINARY="$SCRIPT_DIR/server/target/release/knowledge-base"
+[[ -x "$BINARY" ]] || BINARY="$SCRIPT_DIR/target/release/knowledge-base"
 exec "$BINARY"
