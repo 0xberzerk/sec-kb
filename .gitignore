@@ -1,6 +1,5 @@
 /target
 **/target
-Cargo.lock
 .env
 
 # Runtime data (raw cache and curated index are ephemeral)
